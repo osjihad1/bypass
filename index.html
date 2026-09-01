@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyAuth Server - Professional API Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #667eea;
+        }
+        .header-nav {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .nav-btn:not(.active) {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .card h3 {
+            font-size: 14px;
+            margin-top: 15px;
+            color: #666;
+            font-weight: 600;
+        }
+        .stat {
+            font-size: 24px;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 10px 0;
+        }
+        .key-box {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 11px;
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .table th {
+            background: #f5f5f5;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+            border-bottom: 2px solid #ddd;
+        }
+        .table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+        }
+        .table tr:hover {
+            background: #f9f9f9;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .credentials-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        .credentials-box code {
+            background: #fffbf0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .test-response {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .docs {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .endpoint-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 3px;
+        }
+        .endpoint-method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .method-get {
+            background: #d4edda;
+            color: #155724;
+        }
+        .method-post {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 KeyAuth Server</h1>
+            <div class="header-nav">
+                <button class="nav-btn active" onclick="switchSection('dashboard')">Dashboard</button>
+                <button class="nav-btn" onclick="switchSection('keys')">API Keys</button>
+                <button class="nav-btn" onclick="switchSection('logs')">Logs</button>
+                <button class="nav-btn" onclick="switchSection('test')">Test API</button>
+                <button class="nav-btn" onclick="switchSection('docs')">Documentation</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+            <div class="grid">
+                <div class="card">
+                    <h2>📊 Server Status</h2>
+                    <p><strong>Status:</strong> <span class="status-badge status-active">✓ Online</span></p>
+                    <p><strong>Protocol:</strong> HTTP & HTTPS</p>
+                    <p><strong>Ports:</strong> 80, 2040</p>
+                </div>
+                
+                <div class="card">
+                    <h2>📈 Statistics</h2>
+                    <p><strong>Total API Keys:</strong></p>
+                    <div class="stat" id="statKeys">2</div>
+                    <p><strong>Active Keys:</strong></p>
+                    <div class="stat" id="statActiveKeys">2</div>
+                    <p><strong>Total Requests:</strong></p>
+                    <div class="stat" id="statRequests">0</div>
+                </div>
+
+                <div class="card">
+                    <h2>👤 Current User</h2>
+                    <p><strong>Username:</strong> admin</p>
+                    <p><strong>Email:</strong> admin@keyauth.local</p>
+                    <p><strong>Role:</strong> <span class="status-badge status-active">Admin</span></p>
+                    <p><strong>Account:</strong> <span class="status-badge status-active">Active</span></p>
+                </div>
+            </div>
+
+            <div class="credentials-box">
+                ⚠️ <strong>Default Credentials:</strong><br>
+                Username: <code>admin</code> | Password: <code>admin123</code><br>
+                <em>Change these in production!</em>
+            </div>
+        </div>
+
+        <!-- API Keys Section -->
+        <div id="keys" class="section">
+            <div class="card">
+                <h2>🔑 API Key Management</h2>
+                
+                <h3>Create New API Key</h3>
+                <div class="form-group">
+                    <label>Key Name:</label>
+                    <input type="text" id="keyName" placeholder="e.g., Production API Key">
+                </div>
+                <div class="form-group">
+                    <label>Rate Limit (requests/hour):</label>
+                    <input type="number" id="keyRateLimit" value="1000" min="100" max="10000">
+                </div>
+                <button class="btn" onclick="createAPIKey()">Create Key</button>
+                <div id="createKeyResponse"></div>
+
+                <h3>Your API Keys</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Key ID</th>
+                            <th>Key Value</th>
+                            <th>Status</th>
+                            <th>Usage</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keysTable">
+                        <tr><td colspan="6" style="text-align: center; color: #999;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div id="logs" class="section">
+            <div class="card">
+                <h2>📋 Request Logs</h2>
+                <p style="color: #666; font-size: 12px; margin-bottom: 15px;">Last 100 requests to your API</p>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTable">
+                        <tr><td colspan="5" style="text-align: center; color: #999;">Loading...</td></tr>
+                    </tbody>
+                </table>
+                
+                <button class="btn" onclick="refreshLogs()">Refresh Logs</button>
+            </div>
+        </div>
+
+        <!-- Test API Section -->
+        <div id="test" class="section">
+            <div class="card">
+                <h2>🧪 API Test Console</h2>
+                
+                <h3>Test Endpoints</h3>
+                <button class="btn" onclick="testEndpoint('/api/data', 'GET')">Test /api/data (GET)</button>
+                <button class="btn" onclick="testEndpoint('/api/user/profile', 'GET')">Test /api/user/profile (GET)</button>
+                <button class="btn" onclick="testEndpoint('/api/stats', 'GET')">Test /api/stats (GET)</button>
+
+                <h3>Custom Request</h3>
+                <div class="form-group">
+                    <label>Endpoint:</label>
+                    <input type="text" id="testEndpoint" placeholder="/api/data" value="/api/data">
+                </div>
+                <div class="form-group">
+                    <label>Method:</label>
+                    <select id="testMethod" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option>GET</option>
+                        <option>POST</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>API Key:</label>
+                    <input type="text" id="testKey" placeholder="test_key_12345" value="test_key_12345">
+                </div>
+                <div class="form-group">
+                    <label>Request Body (JSON):</label>
+                    <textarea id="testBody" rows="4" placeholder='{"example": "data"}'></textarea>
+                </div>
+                <button class="btn" onclick="sendCustomRequest()">Send Request</button>
+
+                <div id="testResponse"></div>
+            </div>
+        </div>
+
+        <!-- Documentation Section -->
+        <div id="docs" class="section">
+            <div class="docs">
+                <h2>📚 API Documentation</h2>
+                
+                <h3>Authentication</h3>
+                <p>All API endpoints require authentication via API key. Include your key in the request header:</p>
+                <div class="key-box">
+                    X-API-Key: your_api_key_here
+                </div>
+
+                <h3>Endpoints</h3>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-get">GET</span> <strong>/api/data</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Fetch data from server. Requires authentication.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-get">GET</span> <strong>/api/user/profile</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Get current user profile information.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-get">GET</span> <strong>/api/stats</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Get API usage statistics.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-get">GET</span> <strong>/api/keys</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">List all API keys for current user.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-get">GET</span> <strong>/api/logs</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">View request logs.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-post">POST</span> <strong>/api/auth/register</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Register new user account.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-post">POST</span> <strong>/api/auth/login</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Authenticate and get session token.</p>
+                </div>
+
+                <div class="endpoint-item">
+                    <span class="endpoint-method method-post">POST</span> <strong>/api/keys/create</strong>
+                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Create new API key (requires existing key).</p>
+                </div>
+
+                <h3>Rate Limiting</h3>
+                <p>Each API key has a configurable rate limit. Exceeding the limit will return <code>429 Too Many Requests</code>.</p>
+
+                <h3>Example Request</h3>
+                <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 12px;">curl -X GET http://localhost/api/data \
+  -H "X-API-Key: test_key_12345" \
+  -H "Content-Type: application/json"</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'test_key_12345';
+        const BASE_URL = window.location.origin;
+
+        function switchSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Load data for specific sections
+            if (sectionId === 'keys') loadAPIKeys();
+            if (sectionId === 'logs') loadLogs();
+            if (sectionId === 'dashboard') loadStats();
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/stats`, {
+                    headers: { 'X-API-Key': API_KEY }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('statKeys').textContent = data.stats.total_keys;
+                    document.getElementById('statActiveKeys').textContent = data.stats.active_keys;
+                    document.getElementById('statRequests').textContent = data.stats.total_requests;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadAPIKeys() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/keys`, {
+                    headers: { 'X-API-Key': API_KEY }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.keys) {
+                    const table = document.getElementById('keysTable');
+                    table.innerHTML = data.keys.map(key => `
+                        <tr>
+                            <td>${key.id}</td>
+                            <td><code>${key.key}</code></td>
+                            <td><span class="status-badge ${key.active ? 'status-active' : 'status-inactive'}">${key.active ? 'Active' : 'Revoked'}</span></td>
+                            <td>${key.usage_count} / ${key.rate_limit}</td>
+                            <td>${new Date(key.created_at).toLocaleDateString()}</td>
+                            <td>
+                                ${key.active ? `<button class="btn btn-small" onclick="revokeKey('${key.key}')">Revoke</button>` : '<span style="color: #999;">Revoked</span>'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading keys:', error);
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/logs`, {
+                    headers: { 'X-API-Key': API_KEY }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.logs) {
+                    const table = document.getElementById('logsTable');
+                    table.innerHTML = data.logs.slice().reverse().map(log => `
+                        <tr>
+                            <td><code>${log.id}</code></td>
+                            <td>${log.endpoint}</td>
+                            <td><strong>${log.method}</strong></td>
+                            <td>${getStatusBadge(log.status)}</td>
+                            <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        function getStatusBadge(status) {
+            let color = status === 200 ? 'green' : status < 500 ? 'orange' : 'red';
+            return `<span style="color: ${color}; font-weight: 600;">${status}</span>`;
+        }
+
+        async function createAPIKey() {
+            const name = document.getElementById('keyName').value;
+            const rateLimit = document.getElementById('keyRateLimit').value;
+            
+            if (!name) {
+                showAlert('Please enter a key name', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/keys/create`, {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, rate_limit: parseInt(rateLimit) })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(`✓ Key created: ${data.key}`, 'success');
+                    document.getElementById('keyName').value = '';
+                    setTimeout(loadAPIKeys, 1000);
+                } else {
+                    showAlert('Error creating key', 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function revokeKey(key) {
+            if (confirm('Are you sure you want to revoke this key?')) {
+                try {
+                    const response = await fetch(`${BASE_URL}/api/keys/revoke`, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-Key': API_KEY,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ key })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showAlert('✓ Key revoked', 'success');
+                        setTimeout(loadAPIKeys, 500);
+                    }
+                } catch (error) {
+                    showAlert('Error: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function testEndpoint(endpoint, method) {
+            document.getElementById('testResponse').innerHTML = '<div class="loader"></div> Testing...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}${endpoint}`, {
+                    method,
+                    headers: { 'X-API-Key': API_KEY }
+                });
+                const data = await response.json();
+                
+                document.getElementById('testResponse').innerHTML = `
+                    <div class="test-response">
+                        <strong>Status:</strong> ${response.status}<br><br>
+                        <strong>Response:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('testResponse').innerHTML = `
+                    <div class="alert alert-error">
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function sendCustomRequest() {
+            const endpoint = document.getElementById('testEndpoint').value;
+            const method = document.getElementById('testMethod').value;
+            const key = document.getElementById('testKey').value;
+            const body = document.getElementById('testBody').value;
+
+            document.getElementById('testResponse').innerHTML = '<div class="loader"></div> Sending...';
+
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'X-API-Key': key,
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                if (method === 'POST' && body) {
+                    options.body = body;
+                }
+
+                const response = await fetch(`${BASE_URL}${endpoint}`, options);
+                const data = await response.json();
+
+                document.getElementById('testResponse').innerHTML = `
+                    <div class="test-response">
+                        <strong>Status:</strong> ${response.status}<br><br>
+                        <strong>Response:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('testResponse').innerHTML = `
+                    <div class="alert alert-error">
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function refreshLogs() {
+            loadLogs();
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            // Find the appropriate container
+            const container = document.getElementById('createKeyResponse') || document.body;
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+
+        // Load initial stats
+        loadStats();
+    </script>
+</body>
+</html>
