@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KeyAuth Server - User Authentication System</title>
+    <title>User Authentication System</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -56,11 +56,6 @@
             background: #764ba2;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 11px;
-            margin: 0;
         }
         .grid {
             display: grid;
@@ -129,41 +124,22 @@
             background: #d4edda;
             color: #155724;
         }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+        .info-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .table th {
-            background: #f5f5f5;
-            padding: 10px;
-            text-align: left;
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
             font-weight: 600;
-            font-size: 12px;
             color: #666;
-            border-bottom: 2px solid #ddd;
-        }
-        .table td {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
             font-size: 12px;
         }
-        .table tr:hover { background: #f9f9f9; }
-        .stat {
-            font-size: 28px;
-            font-weight: bold;
-            color: #764ba2;
-            margin: 10px 0;
-        }
-        .key-box {
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 5px;
-            margin: 8px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            word-break: break-all;
-            border-left: 4px solid #667eea;
+        .info-value {
+            color: #333;
+            font-size: 14px;
+            margin-top: 3px;
         }
     </style>
 </head>
@@ -214,7 +190,7 @@
         <!-- Dashboard Section (After Login) -->
         <div id="dashboardSection" class="section">
             <div class="header">
-                <h1>🔐 KeyAuth Server</h1>
+                <h1>🔐 Authentication System</h1>
                 <div class="user-info">
                     <span class="user-name" id="currentUsername">User</span>
                     <button class="btn" onclick="logout()">Logout</button>
@@ -223,78 +199,61 @@
 
             <div class="grid">
                 <div class="card">
-                    <h2>📊 Account Info</h2>
-                    <p><strong>Username:</strong> <span id="displayUsername"></span></p>
-                    <p><strong>Email:</strong> <span id="displayEmail"></span></p>
-                    <p><strong>Status:</strong> <span class="status-badge">✓ Active</span></p>
+                    <h2>👤 User Profile</h2>
+                    <div class="info-row">
+                        <div class="info-label">Username</div>
+                        <div class="info-value" id="displayUsername">-</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="displayEmail">-</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">User ID</div>
+                        <div class="info-value" id="displayUserId">-</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Status</div>
+                        <div class="info-value"><span class="status-badge">✓ Active</span></div>
+                    </div>
                 </div>
 
                 <div class="card">
-                    <h2>📈 API Statistics</h2>
-                    <p><strong>Total API Keys:</strong></p>
-                    <div class="stat" id="statKeys">0</div>
-                    <p><strong>Active Keys:</strong></p>
-                    <div class="stat" id="statActiveKeys">0</div>
-                </div>
-
-                <div class="card">
-                    <h2>📋 Recent Activity</h2>
-                    <p><strong>Total API Requests:</strong></p>
-                    <div class="stat" id="statRequests">0</div>
+                    <h2>🔑 Session Info</h2>
+                    <div class="info-row">
+                        <div class="info-label">Session Token</div>
+                        <div class="info-value" style="font-family: monospace; font-size: 11px; word-break: break-all;">
+                            <code id="displayToken">-</code>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Expires In</div>
+                        <div class="info-value" id="displayExpires">24 hours</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Login Time</div>
+                        <div class="info-value" id="displayLoginTime">-</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- API Keys Management -->
             <div class="card">
-                <h2>🔑 API Key Management</h2>
-                <h3 style="font-size: 14px; color: #666; margin-top: 15px; margin-bottom: 10px;">Generate New API Key</h3>
-                <div class="form-group">
-                    <label>Key Name:</label>
-                    <input type="text" id="keyName" placeholder="e.g., Mobile App, Web API">
+                <h2>ℹ️ How to Use</h2>
+                <div style="font-size: 13px; line-height: 1.6; color: #666;">
+                    <p><strong>1. Login</strong><br>
+                    You have successfully logged in. Your session token is displayed above.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>2. Using Your Token</strong><br>
+                    Send this token with your API requests in the Authorization header:</p>
+                    
+                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">Authorization: Bearer &lt;your-token&gt;</pre>
+                    
+                    <p><strong>3. Example Request</strong><br>
+                    <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">GET /api/user/profile</code></p>
+                    
+                    <p style="margin-top: 15px;"><strong>4. Logout</strong><br>
+                    Click the "Logout" button to end your session.</p>
                 </div>
-                <div class="form-group">
-                    <label>Rate Limit (requests/hour):</label>
-                    <input type="number" id="keyRateLimit" value="1000" min="100" max="10000">
-                </div>
-                <button class="btn" onclick="createAPIKey()">Generate Key</button>
-                <div id="keyResponse"></div>
-
-                <h3 style="font-size: 14px; color: #666; margin-top: 20px; margin-bottom: 10px;">Your API Keys</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Key ID</th>
-                            <th>Key Value</th>
-                            <th>Status</th>
-                            <th>Usage</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="keysTable">
-                        <tr><td colspan="5" style="text-align: center; color: #999;">Loading keys...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Request Logs -->
-            <div class="card">
-                <h2>📊 Request Logs</h2>
-                <p style="color: #666; font-size: 12px; margin-bottom: 15px;">Last 50 API requests</p>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Endpoint</th>
-                            <th>Method</th>
-                            <th>Status</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logsTable">
-                        <tr><td colspan="5" style="text-align: center; color: #999;">Loading logs...</td></tr>
-                    </tbody>
-                </table>
-                <button class="btn" onclick="loadLogs()" style="margin-top: 15px;">Refresh Logs</button>
             </div>
         </div>
     </div>
@@ -303,14 +262,17 @@
         const BASE_URL = window.location.origin;
         let currentUser = null;
         let currentToken = null;
+        let loginTime = null;
 
         // Check if already logged in
         window.addEventListener('load', () => {
             const savedUser = localStorage.getItem('currentUser');
             const savedToken = localStorage.getItem('currentToken');
+            const savedLoginTime = localStorage.getItem('loginTime');
             if (savedUser && savedToken) {
                 currentUser = JSON.parse(savedUser);
                 currentToken = savedToken;
+                loginTime = new Date(savedLoginTime);
                 showDashboard();
             }
         });
@@ -336,8 +298,10 @@
                 if (data.success) {
                     currentUser = data.user;
                     currentToken = data.token;
+                    loginTime = new Date();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     localStorage.setItem('currentToken', currentToken);
+                    localStorage.setItem('loginTime', loginTime.toISOString());
                     showAlert('loginResponse', '✓ Login successful!', 'success');
                     setTimeout(showDashboard, 800);
                 } else {
@@ -384,8 +348,10 @@
         function logout() {
             localStorage.removeItem('currentUser');
             localStorage.removeItem('currentToken');
+            localStorage.removeItem('loginTime');
             currentUser = null;
             currentToken = null;
+            loginTime = null;
             document.getElementById('authSection').classList.add('active');
             document.getElementById('dashboardSection').classList.remove('active');
             document.getElementById('loginUsername').value = '';
@@ -398,134 +364,9 @@
             document.getElementById('currentUsername').textContent = currentUser.username;
             document.getElementById('displayUsername').textContent = currentUser.username;
             document.getElementById('displayEmail').textContent = currentUser.email;
-            loadStats();
-            loadAPIKeys();
-            loadLogs();
-        }
-
-        // ==================== API CALLS ====================
-        async function loadStats() {
-            try {
-                const response = await fetch(`${BASE_URL}/api/stats`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('statKeys').textContent = data.stats.total_keys;
-                    document.getElementById('statActiveKeys').textContent = data.stats.active_keys;
-                    document.getElementById('statRequests').textContent = data.stats.total_requests;
-                }
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
-
-        async function loadAPIKeys() {
-            try {
-                const response = await fetch(`${BASE_URL}/api/keys`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                const data = await response.json();
-                
-                if (data.success && data.keys) {
-                    const table = document.getElementById('keysTable');
-                    table.innerHTML = data.keys.map(key => `
-                        <tr>
-                            <td>${key.id}</td>
-                            <td><code style="background: #f0f0f0; padding: 3px 6px; border-radius: 3px; font-size: 11px;">${key.key}</code></td>
-                            <td><span style="background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">${key.active ? 'Active' : 'Revoked'}</span></td>
-                            <td>${key.usage_count} / ${key.rate_limit}</td>
-                            <td>${key.active ? `<button class="btn btn-small" onclick="revokeKey('${key.key}')">Revoke</button>` : 'Revoked'}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    document.getElementById('keysTable').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">No keys yet</td></tr>';
-                }
-            } catch (error) {
-                console.error('Error loading keys:', error);
-            }
-        }
-
-        async function loadLogs() {
-            try {
-                const response = await fetch(`${BASE_URL}/api/logs`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                const data = await response.json();
-                
-                if (data.success && data.logs) {
-                    const table = document.getElementById('logsTable');
-                    table.innerHTML = data.logs.slice().reverse().slice(0, 50).map(log => {
-                        let statusColor = log.status === 200 ? '#2ecc71' : log.status < 500 ? '#f39c12' : '#e74c3c';
-                        return `
-                            <tr>
-                                <td><code style="font-size: 11px;">${log.id}</code></td>
-                                <td>${log.endpoint}</td>
-                                <td><strong>${log.method}</strong></td>
-                                <td><span style="color: ${statusColor}; font-weight: 600;">${log.status}</span></td>
-                                <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
-                            </tr>
-                        `;
-                    }).join('');
-                }
-            } catch (error) {
-                console.error('Error loading logs:', error);
-            }
-        }
-
-        async function createAPIKey() {
-            const name = document.getElementById('keyName').value;
-            const rateLimit = document.getElementById('keyRateLimit').value;
-            
-            if (!name) {
-                showAlert('keyResponse', '⚠️ Please enter a key name', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/keys/create`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${currentToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, rate_limit: parseInt(rateLimit) })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showAlert('keyResponse', `✓ Key generated: ${data.key}`, 'success');
-                    document.getElementById('keyName').value = '';
-                    setTimeout(loadAPIKeys, 1000);
-                } else {
-                    showAlert('keyResponse', '❌ Failed to create key', 'error');
-                }
-            } catch (error) {
-                showAlert('keyResponse', '❌ Error: ' + error.message, 'error');
-            }
-        }
-
-        async function revokeKey(key) {
-            if (confirm('Are you sure you want to revoke this API key?')) {
-                try {
-                    const response = await fetch(`${BASE_URL}/api/keys/revoke`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${currentToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ key })
-                    });
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        showAlert('keyResponse', '✓ Key revoked successfully', 'success');
-                        setTimeout(loadAPIKeys, 500);
-                    }
-                } catch (error) {
-                    showAlert('keyResponse', '❌ Error: ' + error.message, 'error');
-                }
-            }
+            document.getElementById('displayUserId').textContent = currentUser.id;
+            document.getElementById('displayToken').textContent = currentToken;
+            document.getElementById('displayLoginTime').textContent = loginTime.toLocaleString();
         }
 
         function showAlert(containerId, message, type) {
@@ -542,4 +383,3 @@
     </script>
 </body>
 </html>
- 
