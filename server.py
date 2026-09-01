@@ -128,6 +128,24 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
         
         return key_data
     
+    def check_bearer_token(self):
+        """Verify Bearer token from Authorization header"""
+        auth_header = self.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return None
+        
+        token = auth_header.split(' ')[1]
+        
+        # Find session with this token
+        for session_id, session_data in db.sessions.items():
+            if session_data["token"] == token:
+                # Check if session expired
+                expires_at = datetime.fromisoformat(session_data["expires_at"])
+                if datetime.now() < expires_at:
+                    return session_data["user_id"]
+        
+        return None
+    
     def send_json_response(self, data, status_code=200):
         """Send JSON response"""
         self.send_response(status_code)
@@ -170,26 +188,26 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
         
         # API: Get stats
         if path == '/api/stats':
-            key_data = self.check_api_key()
-            if not key_data:
+            user_id = self.check_bearer_token()
+            if not user_id:
                 db.log_request(None, path, 'GET', 401, self.client_address[0])
                 self.send_json_response({"error": "Unauthorized"}, 401)
                 return
             
-            stats = db.get_user_stats(key_data["user_id"])
+            stats = db.get_user_stats(user_id)
             response = {
                 "success": True,
                 "stats": stats,
                 "timestamp": datetime.now().isoformat()
             }
-            db.log_request(key_data["key"], path, 'GET', 200, self.client_address[0])
+            db.log_request(None, path, 'GET', 200, self.client_address[0])
             self.send_json_response(response)
             return
         
         # API: Get request logs
         if path == '/api/logs':
-            key_data = self.check_api_key()
-            if not key_data:
+            user_id = self.check_bearer_token()
+            if not user_id:
                 db.log_request(None, path, 'GET', 401, self.client_address[0])
                 self.send_json_response({"error": "Unauthorized"}, 401)
                 return
@@ -201,19 +219,19 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
                 "logs": logs,
                 "total": len(db.request_logs)
             }
-            db.log_request(key_data["key"], path, 'GET', 200, self.client_address[0])
+            db.log_request(None, path, 'GET', 200, self.client_address[0])
             self.send_json_response(response)
             return
         
         # API: Get API keys
         if path == '/api/keys':
-            key_data = self.check_api_key()
-            if not key_data:
+            user_id = self.check_bearer_token()
+            if not user_id:
                 db.log_request(None, path, 'GET', 401, self.client_address[0])
                 self.send_json_response({"error": "Unauthorized"}, 401)
                 return
             
-            user_keys = [k for k in db.api_keys.values() if k["user_id"] == key_data["user_id"]]
+            user_keys = [k for k in db.api_keys.values() if k["user_id"] == user_id]
             # Hide full key in response
             for k in user_keys:
                 k["key"] = k["key"][:8] + "***" + k["key"][-4:]
@@ -222,7 +240,7 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
                 "success": True,
                 "keys": user_keys
             }
-            db.log_request(key_data["key"], path, 'GET', 200, self.client_address[0])
+            db.log_request(None, path, 'GET', 200, self.client_address[0])
             self.send_json_response(response)
             return
         
@@ -356,8 +374,8 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
         
         # Create new API key
         if path == '/api/keys/create':
-            key_data = self.check_api_key()
-            if not key_data:
+            user_id = self.check_bearer_token()
+            if not user_id:
                 db.log_request(None, path, 'POST', 401, self.client_address[0])
                 self.send_json_response({"error": "Unauthorized"}, 401)
                 return
@@ -369,7 +387,7 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
             key_id = f"key_{len(db.api_keys) + 1:03d}"
             db.api_keys[new_key] = {
                 "id": key_id,
-                "user_id": key_data["user_id"],
+                "user_id": user_id,
                 "key": new_key,
                 "name": key_name,
                 "active": True,
@@ -386,14 +404,14 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
                 "key": new_key,
                 "key_id": key_id
             }
-            db.log_request(key_data["key"], path, 'POST', 201, self.client_address[0])
+            db.log_request(None, path, 'POST', 201, self.client_address[0])
             self.send_json_response(response, 201)
             return
         
         # Revoke API key
         if path == '/api/keys/revoke':
-            key_data = self.check_api_key()
-            if not key_data:
+            user_id = self.check_bearer_token()
+            if not user_id:
                 db.log_request(None, path, 'POST', 401, self.client_address[0])
                 self.send_json_response({"error": "Unauthorized"}, 401)
                 return
@@ -409,7 +427,7 @@ class KeyAuthHandler(http.server.BaseHTTPRequestHandler):
                 "success": True,
                 "message": "API key revoked"
             }
-            db.log_request(key_data["key"], path, 'POST', 200, self.client_address[0])
+            db.log_request(None, path, 'POST', 200, self.client_address[0])
             self.send_json_response(response)
             return
         
